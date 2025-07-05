@@ -7,7 +7,6 @@ import org.example.model.TotalStats;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -21,19 +20,28 @@ public class DataFilterEngine {
     }
 
     public void process(FilterConfig config) {
+        FileWriter writer = new FileWriter(config);
+
         // Читаем файлы построчно
         for (Path inputFile : config.inputFiles()) {
             try (BufferedReader reader = Files.newBufferedReader(inputFile)) {
                 String word;
 
                 while ((word = reader.readLine()) != null) {
-                    // Определяем тип и обновляем статистику
-                    totalStats.updateStat(word);
-                    }
-                } catch (IOException e) {
+                    // Определяем тип
+                    DataType type = getType(word);
+                    // Обновляем статистику
+                    totalStats.updateStat(type, word);
+                    // Пишем файлы
+                    writer.write(type, word);
+                }
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
+        writer.close();
+    }
+
 
     public DataType getType(String s) {
         if (s.isEmpty()) return DataType.STRING;
