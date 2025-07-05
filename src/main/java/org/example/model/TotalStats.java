@@ -16,31 +16,14 @@ public class TotalStats {
         integerStatistic = new IntegerStatistic();
     }
 
-    public void updateStat(String o) {
-        switch (getType(o)) {
+    public void updateStat(DataType type, String o) {
+        switch (type) {
             case STRING  -> stringStatistic.updateStat(o);
             case FLOAT   -> floatStatistic.updateStat(Double.parseDouble(o));
             case INTEGER -> integerStatistic.updateStat(Long.parseLong(o));
 
-            default -> throw new IllegalStateException("Unexpected value: " + getType(o));
+            default -> throw new IllegalStateException("Unexpected value: " + type);
         }
     }
-
-    public DataType getType(String s) {
-        if (s.isEmpty()) return DataType.STRING;
-
-        try {
-            Long.parseLong(s);
-            return DataType.INTEGER;
-        } catch (Exception e) {
-            try {
-                Double.parseDouble(s);
-                return DataType.FLOAT;
-            } catch (Exception ex) {
-                return DataType.STRING;
-            }
-        }
-    }
-
 
 }

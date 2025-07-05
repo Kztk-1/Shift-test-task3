@@ -2,6 +2,7 @@ package org.example.engine;
 
 import lombok.Data;
 import org.example.dto.FilterConfig;
+import org.example.model.DataType;
 import org.example.model.TotalStats;
 
 import java.io.BufferedReader;
@@ -34,8 +35,20 @@ public class DataFilterEngine {
             }
         }
 
-        // Пишем файлы
-        FileWriter writer = new FileWriter(config);
+    public DataType getType(String s) {
+        if (s.isEmpty()) return DataType.STRING;
+
+        try {
+            Long.parseLong(s);
+            return DataType.INTEGER;
+        } catch (Exception e) {
+            try {
+                Double.parseDouble(s);
+                return DataType.FLOAT;
+            } catch (Exception ex) {
+                return DataType.STRING;
+            }
+        }
     }
 
 }
