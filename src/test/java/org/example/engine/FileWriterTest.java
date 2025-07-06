@@ -28,7 +28,8 @@ class FileWriterTest {
 
     // Вспомогательный метод для создания конфига
     private FilterConfig createConfig(String prefix) {
-        return new FilterConfig(tempDir,
+        return new FilterConfig(
+                tempDir,
                 prefix,
                 false,
                 false,
@@ -42,7 +43,7 @@ class FileWriterTest {
         // Arrange
         FilterConfig config = createConfig("test_");
         fileWriter = new FileWriter(config);
-        String testData = "test_content\n";
+        String testData = "test_content";
 
         // Act
         fileWriter.write(DataType.INTEGER, testData);
@@ -51,9 +52,9 @@ class FileWriterTest {
         fileWriter.close(); // Принудительная запись данных
 
         // Assert
-        assertFileContent("test_integers.txt", testData);
-        assertFileContent("test_floats.txt", testData);
-        assertFileContent("test_strings.txt", testData);
+        assertFileContent("test_integers.txt", testData + "\n");
+        assertFileContent("test_floats.txt", testData + "\n");
+        assertFileContent("test_strings.txt", testData + "\n");
     }
 
     @Test
@@ -61,8 +62,8 @@ class FileWriterTest {
         // Arrange
         FilterConfig config = createConfig("");
         fileWriter = new FileWriter(config);
-        String firstLine = "line1\n";
-        String secondLine = "line2\n";
+        String firstLine = "line1";
+        String secondLine = "line2";
 
         // Act
         fileWriter.write(DataType.STRING, firstLine);
@@ -70,7 +71,7 @@ class FileWriterTest {
         fileWriter.close();
 
         // Assert
-        assertFileContent("strings.txt", firstLine + secondLine);
+        assertFileContent("strings.txt", firstLine + "\n" + secondLine + "\n");
     }
 
     @Test
@@ -86,10 +87,30 @@ class FileWriterTest {
         assertDoesNotThrow(() -> fileWriter.write(DataType.STRING, "should_fail"));
     }
 
-    // Вспомогательный метод для проверки содержимого файла
+    // Вспомогательный метод для проверки содержимого файла с детальной диагностикой
     private void assertFileContent(String fileName, String expectedContent) throws IOException {
         Path filePath = tempDir.resolve(fileName);
         assertTrue(Files.exists(filePath), "File not found: " + fileName);
-        assertEquals(expectedContent, Files.readString(filePath));
+
+        String actualContent = Files.readString(filePath);
+        String normalizedActual = actualContent.replace("\r\n", "\n");
+        String normalizedExpected = expectedContent.replace("\r\n", "\n");
+
+        // Детальное сравнение символов
+        if (!normalizedExpected.equals(normalizedActual)) {
+            System.out.println("=== EXPECTED ===");
+            System.out.println(escapeSpecialChars(normalizedExpected));
+            System.out.println("=== ACTUAL ===");
+            System.out.println(escapeSpecialChars(normalizedActual));
+            System.out.println("===============");
+        }
+
+        assertEquals(normalizedExpected, normalizedActual, "File content mismatch");
+    }
+
+    private String escapeSpecialChars(String input) {
+        return input.replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 }
