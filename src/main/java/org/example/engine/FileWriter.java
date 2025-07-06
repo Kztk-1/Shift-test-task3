@@ -6,8 +6,12 @@ import org.example.model.DataType;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 public class FileWriter {
@@ -21,10 +25,11 @@ public class FileWriter {
     }
 
     public void write(DataType type, String value) {
-
         try {
             var writer = getOrCreate(type);
             writer.write(value);
+            writer.newLine();
+//            writer.flush();
 
         } catch (IOException e) {
             handleWriteError(type, e);
@@ -38,8 +43,14 @@ public class FileWriter {
             return writers.get(type);
         }
 
+        //Coздание writer'а
         Path typePath = buildFilePath(type);
-        BufferedWriter typeWriter = Files.newBufferedWriter(typePath);
+        var appendModeOption = config.appendMode()
+                ? StandardOpenOption.APPEND
+                : StandardOpenOption.TRUNCATE_EXISTING;
+        BufferedWriter typeWriter = Files.newBufferedWriter(typePath, StandardOpenOption.CREATE, appendModeOption);
+
+
         System.out.println(typeWriter.toString());
         writers.put(type, typeWriter);
         return typeWriter;
@@ -75,6 +86,10 @@ public class FileWriter {
     }
 
     public void close() {
-        writers.forEach((type, writer) -> closeWriter(type));
+        List<DataType> types = new ArrayList<>(writers.keySet());
+
+        for (DataType type : types) {
+            closeWriter(type);
+        }
     }
 }
