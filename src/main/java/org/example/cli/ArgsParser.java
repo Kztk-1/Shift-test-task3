@@ -15,37 +15,44 @@ import java.util.List;
  */
 public class ArgsParser { // Command Line Interface Parser
 
-    public static FilterConfig parse(String[] args) throws ParseException {
-        Options options = new Options();
-        options.addOption("o", "output", true,  "Output directory");
-        options.addOption("p", "prefix", true,  "Filename prefix");
-        options.addOption("a", false, "Append mode");
-        options.addOption("s", false, "Short statistics");
-        options.addOption("f", false, "Full statistics");
+    public static FilterConfig parse(String[] args) throws ParseException, IllegalArgumentException {
+        try {
+            Options options = new Options();
+            options.addOption("o", "output", true,  "Output directory");
+            options.addOption("p", "prefix", true,  "Filename prefix");
+            options.addOption("a", false, "Append mode");
+            options.addOption("s", false, "Short statistics");
+            options.addOption("f", false, "Full statistics");
 
-        CommandLine cmd = new DefaultParser().parse(options, args);
+            CommandLine cmd = new DefaultParser().parse(options, args);
 
-        // Получаем значения опций (null — если не задано)
-        String outVal    = cmd.getOptionValue("o", null);
-        String prefixVal = cmd.getOptionValue("p", null);
+            // Получаем файлы
+            List<Path> inputFiles = new ArrayList<>();
+            for (String inputFile : cmd.getArgs()) {
+                inputFiles.add(Path.of(inputFile));
+            }
+            if (inputFiles.isEmpty()) throw new ParseException("PARSE EXCEPTION");
 
-        // Преобразуем путь, или передаём null, чтобы record подставил Path.of("")
-        Path outputPath = outVal != null ? Path.of(outVal) : null;
+            // Получаем значения опций (null — если не задано)
+            String outVal    = cmd.getOptionValue("o", null);
+            String prefixVal = cmd.getOptionValue("p", null);
 
-        // Получаем файлы
-        List<Path> inputFiles = new ArrayList<>();
-        for (String arg : cmd.getArgs()) {
-            inputFiles.add(Path.of(arg));
+            // Преобразуем путь, или передаём null, чтобы record подставил Path.of("")
+            Path outputPath = outVal != null ? Path.of(outVal) : inputFiles.getFirst().getParent();
+
+            // Строим и возвращаем FilterConfig
+            return new FilterConfig(
+                    outputPath,         // будет в папке с input файлами по умолчанию, если null
+                    prefixVal,          // будет "" по умолчанию, если null
+                    cmd.hasOption("a"), // appendMode
+                    cmd.hasOption("s"), // shortStats
+                    cmd.hasOption("f"), // fullStats
+                    inputFiles          // Будет List.of() по умолчанию
+            );
+
+        } catch (ParseException e) {
+            throw new ParseException("PARSE EXCEPTION");
         }
-
-        // Строим и возвращаем FilterConfig
-        return new FilterConfig(
-                outputPath,         // будет "" по умолчанию, если null
-                prefixVal,          // будет "" по умолчанию, если null
-                cmd.hasOption("a"), // appendMode
-                cmd.hasOption("s"), // shortStats
-                cmd.hasOption("f"), // fullStats
-                inputFiles          // Будет List.of() по умолчанию
-        );
     }
+
 }
