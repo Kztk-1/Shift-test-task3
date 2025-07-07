@@ -6,6 +6,8 @@ import org.example.engine.DataFilterEngine;
 import org.example.model.TotalStats;
 import org.example.util.StatisticsPrinter;
 
+import java.io.IOException;
+
 public class ApplicationRunner {
     private final ArgsParser argsParser;
     private final DataFilterEngine engine;
@@ -39,10 +41,13 @@ public class ApplicationRunner {
         } catch (IllegalArgumentException e) {
             System.err.println("Argument error: " + e.getMessage());
             return 1;
+        } catch (IOException e) {
+            System.err.println("I/O error: " + e.getMessage());
+            return 2;
         } catch (Exception e) {
             System.err.println("Processing error: " + e.getMessage());
             e.printStackTrace();
-            return 2;
+            return 3;
         }
     }
 }
