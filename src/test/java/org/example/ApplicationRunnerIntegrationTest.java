@@ -308,7 +308,6 @@ class ApplicationRunnerIntegrationTest {
 
         // Проверка статистики
         String consoleOutput = out.toString();
-        System.out.println(consoleOutput);
         assertTrue(consoleOutput.contains("Integers: count=2, min=-20, max=10, sum=-10, avg=-5.0"),
                 "Должна отображаться полная статистика для целых чисел");
         assertTrue(consoleOutput.contains("Floats: count=2, min=3.5, max=15.0, sum=18.5, avg=9.25"),
@@ -318,7 +317,7 @@ class ApplicationRunnerIntegrationTest {
     @Test
     void shouldShowShortStats(@TempDir Path tempDir) throws Exception {
         // Подготовка тестового файла
-        Path input = tempDir.resolve("data.txt");
+        Path input = tempDir.resolve("data.txt.txt");
         Files.write(input, List.of("Test"));
 
         // Перенаправляем вывод для проверки
@@ -350,7 +349,6 @@ class ApplicationRunnerIntegrationTest {
         assertEqualsFileContent("Test", stringFile);
 
         // Проверка статистики
-        System.out.println(out);
         assertTrue(out.toString().contains("Всего элементов: 1 (int: 0, float: 0, string: 1)"),
                 "Должна отображаться краткая статистика для строк");
     }
@@ -399,7 +397,7 @@ class ApplicationRunnerIntegrationTest {
         outputDir.toFile().setReadOnly();
 
         // Создание входного файла
-        Path input = tempDir.resolve("data.txt");
+        Path input = tempDir.resolve("data.txt.txt");
         Files.write(input, List.of("test"));
 
         // Запуск приложения
@@ -422,7 +420,7 @@ class ApplicationRunnerIntegrationTest {
     @Test
     void shouldParseSpecialNumberFormats(@TempDir Path tempDir) throws Exception {
         // Подготовка тестового файла
-        Path input = tempDir.resolve("data.txt");
+        Path input = tempDir.resolve("data.txt.txt");
         Files.write(input, Arrays.asList(
                 "0x10", // не число (строка)
                 "1e-10",
