@@ -10,26 +10,18 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
 /**
- * Утилита для вывода собранной статистики в консоль.
+ * Класс для вывода статистики в консоль
  */
 public class StatisticsPrinter {
+    private final DecimalFormat floatFormat;
+    private final DecimalFormat intAvgFormat;
 
-    // Формат для дробей: максимум 3 цифры после точки, минимум 0
-    private static final DecimalFormat DF_FLOAT;
-    // Формат для среднего по целым: максимум 3 цифры после точки, минимум 1
-    private static final DecimalFormat DF_INT_AVG;
-
-    static {
-        DF_FLOAT = new DecimalFormat("#.###");
-        DF_FLOAT.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
-        DF_FLOAT.setMinimumFractionDigits(1);
-
-        DF_INT_AVG = new DecimalFormat("#.###");
-        DF_INT_AVG.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
-        DF_INT_AVG.setMinimumFractionDigits(1);
+    public StatisticsPrinter() {
+        this.floatFormat = createFloatFormat();
+        this.intAvgFormat = createIntAvgFormat();
     }
 
-    public static void print(TotalStats stats, boolean fullStats) {
+    public void print(TotalStats stats, boolean fullStats) {
         if (fullStats) {
             printAll(stats);
         } else {
@@ -37,10 +29,10 @@ public class StatisticsPrinter {
         }
     }
 
-    private static void printAll(TotalStats stats) {
+    private void printAll(TotalStats stats) {
         StringStatistic ss = stats.getStringStatistic();
         IntegerStatistic is = stats.getIntegerStatistic();
-        FloatStatistic  fs = stats.getFloatStatistic();
+        FloatStatistic fs = stats.getFloatStatistic();
 
         System.out.println("=== Полная статистика ===");
         System.out.printf("Strings: count=%d, minLen=%d, maxLen=%d%n",
@@ -51,24 +43,38 @@ public class StatisticsPrinter {
                 is.getMin(),
                 is.getMax(),
                 is.getSum(),
-                DF_INT_AVG.format(is.getMiddle()));
+                intAvgFormat.format(is.getMiddle()));
 
         System.out.printf("Floats: count=%d, min=%s, max=%s, sum=%s, avg=%s%n",
                 fs.getTypeCnt(),
-                DF_FLOAT.format(fs.getMin()),
-                DF_FLOAT.format(fs.getMax()),
-                DF_FLOAT.format(fs.getSum()),
-                DF_FLOAT.format(fs.getMiddle()));
+                floatFormat.format(fs.getMin()),
+                floatFormat.format(fs.getMax()),
+                floatFormat.format(fs.getSum()),
+                floatFormat.format(fs.getMiddle()));
     }
 
-    private static void printSummary(TotalStats stats) {
+    private void printSummary(TotalStats stats) {
         IntegerStatistic is = stats.getIntegerStatistic();
-        FloatStatistic  fs = stats.getFloatStatistic();
+        FloatStatistic fs = stats.getFloatStatistic();
         int stringCnt = stats.getStringStatistic().getTypeCnt();
 
         System.out.println("=== Краткая статистика ===");
         System.out.printf("Всего элементов: %d (int: %d, float: %d, string: %d)%n",
                 is.getTypeCnt() + fs.getTypeCnt() + stringCnt,
                 is.getTypeCnt(), fs.getTypeCnt(), stringCnt);
+    }
+
+    private static DecimalFormat createFloatFormat() {
+        DecimalFormat df = new DecimalFormat("#.###");
+        df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
+        df.setMinimumFractionDigits(1);
+        return df;
+    }
+
+    private static DecimalFormat createIntAvgFormat() {
+        DecimalFormat df = new DecimalFormat("#.###");
+        df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
+        df.setMinimumFractionDigits(1);
+        return df;
     }
 }
