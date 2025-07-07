@@ -3,6 +3,7 @@ package org.example.engine;
 import org.example.dto.FilterConfig;
 import org.example.model.DataType;
 import org.example.model.TotalStats;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -21,6 +22,15 @@ class DataFilterEngineTest {
     @TempDir
     Path tempDir;
 
+    private Path testFile;
+
+    @BeforeEach
+    void setUp() throws IOException {
+        // Создаем временный файл для тестов
+        testFile = Files.createTempFile("test", ".txt");
+        Files.write(testFile, List.of("test"));
+    }
+
     private FilterConfig createConfig(Path... inputFiles) {
         return new FilterConfig(
                 tempDir,
@@ -29,6 +39,17 @@ class DataFilterEngineTest {
                 false,
                 false,
                 List.of(inputFiles)
+        );
+    }
+
+    private FilterConfig createConfig() {
+        return new FilterConfig(
+                tempDir,
+                "test_",
+                false,
+                false,
+                false,
+                List.of(testFile)
         );
     }
 

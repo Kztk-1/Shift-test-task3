@@ -17,6 +17,7 @@ class TotalStatsTest {
     void setUp() {
         totalStats = new TotalStats();
         engine = new DataFilterEngine();
+        typeDetector = new TypeDetector();
     }
 
     @Test
