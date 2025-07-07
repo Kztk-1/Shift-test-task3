@@ -1,4 +1,4 @@
-package org.example.engine;
+package org.example.util;
 
 import org.example.dto.FilterConfig;
 import org.example.model.DataType;
@@ -6,7 +6,6 @@ import org.example.model.DataType;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;

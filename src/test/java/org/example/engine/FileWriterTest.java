@@ -2,6 +2,7 @@ package org.example.engine;
 
 import org.example.dto.FilterConfig;
 import org.example.model.DataType;
+import org.example.util.FileWriter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
