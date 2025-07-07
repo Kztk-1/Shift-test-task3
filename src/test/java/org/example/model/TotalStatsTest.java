@@ -1,5 +1,6 @@
 package org.example.model;
 
+import org.example.util.TypeDetector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.example.engine.DataFilterEngine;
@@ -10,6 +11,7 @@ class TotalStatsTest {
 
     private TotalStats totalStats;
     private DataFilterEngine engine;
+    private TypeDetector typeDetector;
 
     @BeforeEach
     void setUp() {
@@ -24,7 +26,7 @@ class TotalStatsTest {
 
         // Act
         for (String value : values) {
-            DataType type = engine.getType(value);
+            DataType type = typeDetector.detectType(value);
             totalStats.updateStat(type, value);
         }
 
@@ -42,7 +44,7 @@ class TotalStatsTest {
 
         // Act
         for (String value : values) {
-            DataType type = engine.getType(value);
+            DataType type = typeDetector.detectType(value);
             totalStats.updateStat(type, value);
         }
 
@@ -62,7 +64,7 @@ class TotalStatsTest {
 
         // Act
         for (String value : values) {
-            DataType type = engine.getType(value);
+            DataType type = typeDetector.detectType(value);
             totalStats.updateStat(type, value);
         }
 
@@ -82,7 +84,7 @@ class TotalStatsTest {
 
         // Act
         for (String value : values) {
-            DataType type = engine.getType(value);
+            DataType type = typeDetector.detectType(value);
             totalStats.updateStat(type, value);
         }
 
@@ -95,7 +97,7 @@ class TotalStatsTest {
     @Test
     void updateStat_handlesEmptyString() {
         // Act
-        DataType type = engine.getType("");
+        DataType type = typeDetector.detectType("");
         totalStats.updateStat(type, "");
 
         // Assert
@@ -113,11 +115,11 @@ class TotalStatsTest {
 
         // Act & Assert
         assertDoesNotThrow(() -> {
-            DataType typeInt = engine.getType(bigInt);
+            DataType typeInt = typeDetector.detectType(bigInt);
             totalStats.updateStat(typeInt, bigInt);
         });
         assertDoesNotThrow(() -> {
-            DataType typeFloat = engine.getType(bigFloat);
+            DataType typeFloat = typeDetector.detectType(bigFloat);
             totalStats.updateStat(typeFloat, bigFloat);
         });
 
@@ -132,7 +134,7 @@ class TotalStatsTest {
         String invalidNumber = "123ABC";
 
         // Act
-        DataType type = engine.getType(invalidNumber);
+        DataType type = typeDetector.detectType(invalidNumber);
         totalStats.updateStat(type, invalidNumber);
 
         // Assert
@@ -142,24 +144,24 @@ class TotalStatsTest {
 
     @Test
     void getType_detectsStringType() {
-        assertEquals(DataType.STRING, engine.getType("hello"));
-        assertEquals(DataType.STRING, engine.getType("123ABC"));
-        assertEquals(DataType.STRING, engine.getType(""));
+        assertEquals(DataType.STRING, typeDetector.detectType("hello"));
+        assertEquals(DataType.STRING, typeDetector.detectType("123ABC"));
+        assertEquals(DataType.STRING, typeDetector.detectType(""));
     }
 
     @Test
     void getType_detectsIntegerType() {
-        assertEquals(DataType.INTEGER, engine.getType("42"));
-        assertEquals(DataType.INTEGER, engine.getType("-100"));
-        assertEquals(DataType.INTEGER, engine.getType("0"));
+        assertEquals(DataType.INTEGER, typeDetector.detectType("42"));
+        assertEquals(DataType.INTEGER, typeDetector.detectType("-100"));
+        assertEquals(DataType.INTEGER, typeDetector.detectType("0"));
     }
 
     @Test
     void getType_detectsFloatType() {
-        assertEquals(DataType.FLOAT, engine.getType("3.14"));
-        assertEquals(DataType.FLOAT, engine.getType("-0.5"));
-        assertEquals(DataType.FLOAT, engine.getType("1.0"));
-        assertEquals(DataType.FLOAT, engine.getType("1.7976931348623157E308"));
-        assertEquals(DataType.INTEGER, engine.getType("2147483648")); // > Integer.MAX_VALUE but fits in Long
+        assertEquals(DataType.FLOAT, typeDetector.detectType("3.14"));
+        assertEquals(DataType.FLOAT, typeDetector.detectType("-0.5"));
+        assertEquals(DataType.FLOAT, typeDetector.detectType("1.0"));
+        assertEquals(DataType.FLOAT, typeDetector.detectType("1.7976931348623157E308"));
+        assertEquals(DataType.INTEGER, typeDetector.detectType("2147483648")); // > Integer.MAX_VALUE but fits in Long
     }
 }

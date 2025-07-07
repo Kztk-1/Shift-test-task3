@@ -5,6 +5,7 @@ import org.example.dto.FilterConfig;
 import org.example.model.DataType;
 import org.example.model.TotalStats;
 import org.example.util.FileWriter;
+import org.example.util.TypeDetector;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,9 +16,11 @@ import java.nio.file.Path;
 public class DataFilterEngine {
 
     TotalStats totalStats;
+    TypeDetector typeDetector;
 
     public DataFilterEngine() {
         totalStats = new TotalStats();
+        typeDetector = new TypeDetector();
     }
 
     public void process(FilterConfig config) throws IOException {
@@ -33,7 +36,7 @@ public class DataFilterEngine {
                 String word;
                 while ((word = reader.readLine()) != null) {
                     // Определяем тип
-                    DataType type = getType(word);
+                    DataType type = typeDetector.detectType(word);
                     // Обновляем статистику
                     totalStats.updateStat(type, word);
                     // Пишем файлы
@@ -46,21 +49,5 @@ public class DataFilterEngine {
         writer.close();
     }
 
-
-    public DataType getType(String s) {
-        if (s.isEmpty()) return DataType.STRING;
-
-        try {
-            Long.parseLong(s);
-            return DataType.INTEGER;
-        } catch (Exception e) {
-            try {
-                Double.parseDouble(s);
-                return DataType.FLOAT;
-            } catch (Exception ex) {
-                return DataType.STRING;
-            }
-        }
-    }
 
 }
