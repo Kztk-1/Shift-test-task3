@@ -4,6 +4,7 @@ import lombok.Data;
 import org.example.dto.FilterConfig;
 import org.example.model.DataType;
 import org.example.model.TotalStats;
+import org.example.util.FileWriter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,14 +20,17 @@ public class DataFilterEngine {
         totalStats = new TotalStats();
     }
 
-    public void process(FilterConfig config) {
+    public void process(FilterConfig config) throws IOException {
+        if (!Files.isWritable(config.outputPath())) {
+            throw new IOException();
+        }
+
         FileWriter writer = new FileWriter(config);
 
         // Читаем файлы построчно
         for (Path inputFile : config.inputFiles()) {
             try (BufferedReader reader = Files.newBufferedReader(inputFile)) {
                 String word;
-
                 while ((word = reader.readLine()) != null) {
                     // Определяем тип
                     DataType type = getType(word);
