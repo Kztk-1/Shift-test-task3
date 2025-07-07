@@ -13,9 +13,9 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-public class FileWriter {
+public class FileWriter implements AutoCloseable {
 
-    private FilterConfig config;
+    private final FilterConfig config;
     private final Map<DataType, BufferedWriter> writers;
 
     public FileWriter(FilterConfig config) {
@@ -28,13 +28,24 @@ public class FileWriter {
             var writer = getOrCreate(type);
             writer.write(value);
             writer.newLine();
-//            writer.flush();
 
         } catch (IOException e) {
             handleWriteError(type, e);
         }
+    }
 
+    public void writeWithRetry(DataType type, String value, int attempts) {
+        while (attempts-- > 0) {
+            try {
+                var writer = getOrCreate(type);
+                writer.write(value);
+                writer.newLine();
+                return;
 
+            } catch (IOException e) {
+                handleWriteError(type, e);
+            }
+        }
     }
 
     private BufferedWriter getOrCreate(DataType type) throws IOException {
