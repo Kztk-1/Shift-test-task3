@@ -5,21 +5,35 @@ import org.example.model.StringStatistic;
 import org.example.model.IntegerStatistic;
 import org.example.model.FloatStatistic;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
 /**
  * Утилита для вывода собранной статистики в консоль.
  */
 public class StatisticsPrinter {
 
+    // Формат для дробей: максимум 3 цифры после точки, минимум 0
+    private static final DecimalFormat DF_FLOAT;
+    // Формат для среднего по целым: максимум 3 цифры после точки, минимум 1
+    private static final DecimalFormat DF_INT_AVG;
+
+    static {
+        DF_FLOAT = new DecimalFormat("#.###");
+        DF_FLOAT.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
+        DF_FLOAT.setMinimumFractionDigits(1);
+
+        DF_INT_AVG = new DecimalFormat("#.###");
+        DF_INT_AVG.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
+        DF_INT_AVG.setMinimumFractionDigits(1);
+    }
+
     public static void print(TotalStats stats, boolean fullStats) {
-        StatisticMode mode = fullStats ? StatisticMode.ALL : StatisticMode.SUMMARY;
-        switch (mode) {
-            case SUMMARY:
-                printSummary(stats);
-                break;
-            case ALL:
-            default:
-                printAll(stats);
-                break;
+        if (fullStats) {
+            printAll(stats);
+        } else {
+            printSummary(stats);
         }
     }
 
@@ -29,27 +43,32 @@ public class StatisticsPrinter {
         FloatStatistic  fs = stats.getFloatStatistic();
 
         System.out.println("=== Полная статистика ===");
-        System.out.printf("Строки: count=%d, minLen=%d, maxLen=%d\n",
+        System.out.printf("Strings: count=%d, minLen=%d, maxLen=%d%n",
                 ss.getTypeCnt(), ss.getMinLen(), ss.getMaxLen());
-        System.out.printf("Целые: count=%d, min=%d, max=%d, sum=%d, avg=%.3f\n",
-                is.getTypeCnt(), is.getMin(), is.getMax(), is.getSum(), is.getMiddle());
-        System.out.printf("Вещественные: count=%d, min=%.3f, max=%.3f, sum=%.3f, avg=%.3f\n",
-                fs.getTypeCnt(), fs.getMin(), fs.getMax(), fs.getSum(), fs.getMiddle());
+
+        System.out.printf("Integers: count=%d, min=%d, max=%d, sum=%d, avg=%s%n",
+                is.getTypeCnt(),
+                is.getMin(),
+                is.getMax(),
+                is.getSum(),
+                DF_INT_AVG.format(is.getMiddle()));
+
+        System.out.printf("Floats: count=%d, min=%s, max=%s, sum=%s, avg=%s%n",
+                fs.getTypeCnt(),
+                DF_FLOAT.format(fs.getMin()),
+                DF_FLOAT.format(fs.getMax()),
+                DF_FLOAT.format(fs.getSum()),
+                DF_FLOAT.format(fs.getMiddle()));
     }
 
     private static void printSummary(TotalStats stats) {
         IntegerStatistic is = stats.getIntegerStatistic();
         FloatStatistic  fs = stats.getFloatStatistic();
+        int stringCnt = stats.getStringStatistic().getTypeCnt();
 
         System.out.println("=== Краткая статистика ===");
-        System.out.printf("Всего элементов: %d (int: %d, float: %d, string: %d)\n",
-                is.getTypeCnt() + fs.getTypeCnt() + stats.getStringStatistic().getTypeCnt(),
-                is.getTypeCnt(), fs.getTypeCnt(), stats.getStringStatistic().getTypeCnt());
-    }
-
-    enum StatisticMode {
-        SUMMARY, ALL
+        System.out.printf("Всего элементов: %d (int: %d, float: %d, string: %d)%n",
+                is.getTypeCnt() + fs.getTypeCnt() + stringCnt,
+                is.getTypeCnt(), fs.getTypeCnt(), stringCnt);
     }
 }
-
-
