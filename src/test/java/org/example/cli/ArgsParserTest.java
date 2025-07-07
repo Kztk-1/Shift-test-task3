@@ -13,8 +13,11 @@ class ArgsParserTest {
 
     @Test
     void parse_NoArguments_ShouldUseDefaults() throws ParseException {
+        // Given
+        String[] args = {"input.txt"};  // Добавляем входной файл
+
         // When
-        FilterConfig config = ArgsParser.parse(new String[]{});
+        FilterConfig config = ArgsParser.parse(args);
 
         // Then
         assertEquals(Path.of(""), config.outputPath(), "Default output path should be empty path");
@@ -23,13 +26,14 @@ class ArgsParserTest {
         assertFalse(config.shortStats(), "Short statistics should be false by default");
         assertFalse(config.fullStats(), "Full statistics should be false by default");
         assertNotNull(config.inputFiles(), "Input files list should not be null");
-        assertTrue(config.inputFiles().isEmpty(), "Input files should be empty by default");
+        assertEquals(1, config.inputFiles().size(), "Input files should contain added file");
+        assertEquals(Path.of("input.txt"), config.inputFiles().get(0));
     }
 
     @Test
     void parse_WithOutputAndPrefix_ShouldSetValues() throws ParseException {
         // Given
-        String[] args = {"-o", "/tmp/output", "-p", "myprefix"};
+        String[] args = {"-o", "/tmp/output", "-p", "myprefix", "data.txt.txt"};
 
         // When
         FilterConfig config = ArgsParser.parse(args);
@@ -41,13 +45,14 @@ class ArgsParserTest {
         assertFalse(config.shortStats(), "Short statistics should remain false when not set");
         assertFalse(config.fullStats(), "Full statistics should remain false when not set");
         assertNotNull(config.inputFiles(), "Input files list should not be null");
-        assertTrue(config.inputFiles().isEmpty(), "Input files should be empty when none provided");
+        assertEquals(1, config.inputFiles().size());
+        assertEquals(Path.of("data.txt.txt"), config.inputFiles().get(0));
     }
 
     @Test
     void parse_WithFlags_ShouldEnableCorrespondingModes() throws ParseException {
         // Given
-        String[] args = {"-a", "-s", "-f"};
+        String[] args = {"-a", "-s", "-f", "input.log"};
 
         // When
         FilterConfig config = ArgsParser.parse(args);
@@ -60,13 +65,14 @@ class ArgsParserTest {
         assertEquals(Path.of(""), config.outputPath(), "Output path should be default when not set");
         assertEquals("", config.filePrefix(), "File prefix should be default when not set");
         assertNotNull(config.inputFiles(), "Input files list should not be null");
-        assertTrue(config.inputFiles().isEmpty(), "Input files should be empty when none provided");
+        assertEquals(1, config.inputFiles().size());
+        assertEquals(Path.of("input.log"), config.inputFiles().get(0));
     }
 
     @Test
     void parse_CombinedOptions_ShouldHandleAll() throws ParseException {
         // Given
-        String[] args = {"-o", "outDir", "-p", "pre", "-a", "-s"};
+        String[] args = {"-o", "outDir", "-p", "pre", "-a", "-s", "file1.csv", "file2.csv"};
 
         // When
         FilterConfig config = ArgsParser.parse(args);
@@ -78,9 +84,10 @@ class ArgsParserTest {
         assertTrue(config.shortStats());
         assertFalse(config.fullStats(), "Full statistics should be false when -f is not provided");
         assertNotNull(config.inputFiles(), "Input files list should not be null");
-        assertTrue(config.inputFiles().isEmpty(), "Input files should be empty when none provided");
+        assertEquals(2, config.inputFiles().size());
+        assertEquals(Path.of("file1.csv"), config.inputFiles().get(0));
+        assertEquals(Path.of("file2.csv"), config.inputFiles().get(1));
     }
-
     @Test
     void parse_WithInputFiles_ShouldListThem() throws ParseException {
         // Given
