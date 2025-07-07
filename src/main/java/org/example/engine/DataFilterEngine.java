@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 @Data
 public class DataFilterEngine {
@@ -24,6 +25,7 @@ public class DataFilterEngine {
     }
 
     public void process(FilterConfig config) throws IOException {
+        Objects.requireNonNull(config, "FilterConfig must not be null");
         if (!Files.isWritable(config.outputPath())) {
             throw new IOException();
         }
